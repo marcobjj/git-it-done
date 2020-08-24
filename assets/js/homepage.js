@@ -3,6 +3,7 @@ var nameInputEl = document.querySelector("#username");
 
 var repoContainerEl = document.querySelector("#repos-container");
 var repoSearchTerm = document.querySelector("#repo-search-term");
+var languageButtonsEl = document.querySelector("#language-buttons");
 
 var formSubmitHandler = function (event) {
     event.preventDefault();
@@ -15,6 +16,22 @@ var formSubmitHandler = function (event) {
         alert("Please enter a GitHub username");
     }
 };
+
+var getFeaturedRepos = function (language) {
+
+    var apiUrl = "https://api.github.com/search/repositories?q=" + language + "+is:featured&sort=help-wanted-issues";
+
+    fetch(apiUrl).then(function (response) {
+        if (response.ok) {
+            response.json().then(function (data) {
+                displayRepos(data.items, language);
+            });
+        } else {
+            alert("Error: " + response.statusText);
+        }
+    });
+};
+
 
 var displayRepos = function (repos, searchTerm) {
 
@@ -38,7 +55,7 @@ var displayRepos = function (repos, searchTerm) {
         // create a container for each repo
         var repoEl = document.createElement("a");
         repoEl.classList = "list-item flex-row justify-space-between align-center";
-        repoEl.setAttribute("href", "./single-repo.html?repo="+repoName);
+        repoEl.setAttribute("href", "./single-repo.html?repo=" + repoName);
 
 
         // create a span element to hold repository name
@@ -85,7 +102,18 @@ var getUserRepos = function (user) {
 
 };
 
-//getUserRepos("octocat");
-//getUserRepos("microsoft");
+function buttonClickHandler() {
+
+    var language = event.target.getAttribute("data-language");
+
+    if (language) {
+        getFeaturedRepos(language);
+
+        // clear old content
+        repoContainerEl.textContent = "";
+    }
+
+}
 
 userFormEl.addEventListener("submit", formSubmitHandler);
+languageButtonsEl.addEventListener("click", buttonClickHandler);
